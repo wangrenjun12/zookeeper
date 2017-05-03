@@ -86,6 +86,9 @@ public class NIOServerCnxnFactory extends ServerCnxnFactory {
     public static final String ZOOKEEPER_NIO_SHUTDOWN_TIMEOUT =
         "zookeeper.nio.shutdownTimeout";
 
+    /**
+     * 为啥要这样设置  对异常捕获有什么好处
+     */
     static {
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
                 public void uncaughtException(Thread t, Throwable e) {
@@ -288,6 +291,7 @@ public class NIOServerCnxnFactory extends ServerCnxnFactory {
                 InetAddress ia = sc.socket().getInetAddress();
                 int cnxncount = getClientCnxnCount(ia);
 
+                // 一个IP最大连接数限制
                 if (maxClientCnxns > 0 && cnxncount >= maxClientCnxns){
                     throw new IOException("Too many connections from " + ia
                                           + " - max is " + maxClientCnxns );
@@ -298,6 +302,7 @@ public class NIOServerCnxnFactory extends ServerCnxnFactory {
                 sc.configureBlocking(false);
 
                 // Round-robin assign this connection to a selector thread
+                //获取下一个线程来处理
                 if (!selectorIterator.hasNext()) {
                     selectorIterator = selectorThreads.iterator();
                 }
