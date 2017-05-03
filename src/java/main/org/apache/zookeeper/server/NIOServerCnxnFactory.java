@@ -779,6 +779,7 @@ public class NIOServerCnxnFactory extends ServerCnxnFactory {
     /**
      * De-registers the connection from the various mappings maintained
      * by the factory.
+     * 链接移除
      */
     public boolean removeCnxn(NIOServerCnxn cnxn) {
         // If the connection is not in the master list it's already been closed

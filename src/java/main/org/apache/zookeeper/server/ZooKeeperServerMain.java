@@ -45,7 +45,7 @@ public class ZooKeeperServerMain {
         "Usage: ZooKeeperServerMain configfile | port datadir [ticktime] [maxcnxns]";
 
     // ZooKeeper server supports two kinds of connection: unencrypted and encrypted.
-    private ServerCnxnFactory cnxnFactory;
+    private ServerCnxnFactory cnxnFactory; //两种处理实现 NIO或基于Netty  NIOServerCnxnFactory  NettyServerCnxnFactory
     private ServerCnxnFactory secureCnxnFactory;
     private ContainerManager containerManager;
 
@@ -95,9 +95,11 @@ public class ZooKeeperServerMain {
         }
 
         ServerConfig config = new ServerConfig();
+        //只有一个参数 那就是配置文件路径
         if (args.length == 1) {
             config.parse(args[0]);
         } else {
+        	//否则可以是配置项
             config.parse(args);
         }
 
@@ -126,6 +128,7 @@ public class ZooKeeperServerMain {
             // Registers shutdown handler which will be used to know the
             // server error or shutdown state changes.
             final CountDownLatch shutdownLatch = new CountDownLatch(1);
+            //关闭处理钩子函数
             zkServer.registerServerShutdownHandler(
                     new ZooKeeperServerShutdownHandler(shutdownLatch));
 

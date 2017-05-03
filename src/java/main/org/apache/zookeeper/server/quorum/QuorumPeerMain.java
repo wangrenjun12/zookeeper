@@ -111,17 +111,19 @@ public class QuorumPeerMain {
         }
 
         // Start and schedule the the purge task
+        // 启动清理线程
         DatadirCleanupManager purgeMgr = new DatadirCleanupManager(config
                 .getDataDir(), config.getDataLogDir(), config
                 .getSnapRetainCount(), config.getPurgeInterval());
         purgeMgr.start();
 
         if (args.length == 1 && config.isDistributed()) {
-            runFromConfig(config);
+            runFromConfig(config);//指定配置文件运行
         } else {
             LOG.warn("Either no config or no quorum defined in config, running "
                     + " in standalone mode");
             // there is only server in the quorum -- run as standalone
+            //独立服务器运行
             ZooKeeperServerMain.main(args);
         }
     }
@@ -182,8 +184,10 @@ public class QuorumPeerMain {
           quorumPeer.setSyncEnabled(config.getSyncEnabled());
           quorumPeer.setQuorumListenOnAllIPs(config.getQuorumListenOnAllIPs());
           
+          //集群启动模式  启动之后进入选举状态
           quorumPeer.start();
           quorumPeer.join();
+          
       } catch (InterruptedException e) {
           // warn, but generally this is ok
           LOG.warn("Quorum Peer interrupted", e);

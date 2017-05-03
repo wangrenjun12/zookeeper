@@ -70,7 +70,7 @@ import org.apache.zookeeper.admin.ZooKeeperAdmin;
 
 /**
  * The command line client to ZooKeeper.
- *
+ * ZK命令行客户端主入口类
  */
 public class ZooKeeperMain {
     private static final Logger LOG = LoggerFactory.getLogger(ZooKeeperMain.class);
@@ -92,12 +92,14 @@ public class ZooKeeperMain {
     }
 
     static {
+    	 // 初始化命令行选型
         commandMap.put("connect", "host:port");
         commandMap.put("history","");
         commandMap.put("redo","cmdno");
         commandMap.put("printwatches", "on|off");
         commandMap.put("quit", "");
 
+        //初始化支持的命令操作
         new CloseCommand().addToMap(commandMapCli);
         new CreateCommand().addToMap(commandMapCli);
         new DeleteCommand().addToMap(commandMapCli);
@@ -126,6 +128,9 @@ public class ZooKeeperMain {
     }
     }
 
+    /**
+     * 打印帮助信息
+     */
     static void usage() {
         System.err.println("ZooKeeper -server host:port cmd args");
         List<String> cmdList = new ArrayList<String>(commandMap.keySet());
@@ -182,6 +187,7 @@ public class ZooKeeperMain {
         }
 
         /**
+         * 根据运行程序参数解析成程序参数
          * Parses a command line that may contain one or more flags
          * before an optional command string
          * @param args command line arguments
@@ -221,6 +227,7 @@ public class ZooKeeperMain {
         }
 
         /**
+         * 解析命令和参数
          * Breaks a string into command + arguments.
          * @param cmdstring string of form "cmd arg1 arg2..etc"
          * @return true if parsing succeeded.
@@ -272,6 +279,12 @@ public class ZooKeeperMain {
         System.out.println("\n"+msg);
     }
 
+    /**
+     * 连接到ZK服务器 服务器类ZooKeeperAdmin
+     * @param newHost
+     * @throws InterruptedException
+     * @throws IOException
+     */
     protected void connectToZK(String newHost) throws InterruptedException, IOException {
         if (zk != null && zk.getState().isAlive()) {
             zk.close();
@@ -302,6 +315,12 @@ public class ZooKeeperMain {
       this.zk = zk;
     }
 
+    /**
+     * 连接服务器  启动命令交互模式
+     * @throws CliException
+     * @throws IOException
+     * @throws InterruptedException
+     */
     void run() throws CliException, IOException, InterruptedException {
         if (cl.getCommand() == null) {
             System.out.println("Welcome to ZooKeeper!");
@@ -363,10 +382,17 @@ public class ZooKeeperMain {
         System.exit(exitCode);
     }
 
+    /**
+     * 从输入字符串到命令执行过程
+     * @param line
+     * @throws CliException
+     * @throws InterruptedException
+     * @throws IOException
+     */
     public void executeLine(String line) throws CliException, InterruptedException, IOException {
       if (!line.equals("")) {
         cl.parseCommand(line);
-        addToHistory(commandCount,line);
+        addToHistory(commandCount,line);//把执行命令记录到历史列表里
         processCmd(cl);
         commandCount++;
       }
@@ -592,6 +618,14 @@ public class ZooKeeperMain {
         return watch;
     }
 
+    /**
+     * 客户端ZK命令处理
+     * @param co
+     * @return
+     * @throws CliException
+     * @throws IOException
+     * @throws InterruptedException
+     */
     protected boolean processZKCmd(MyCommandOptions co) throws CliException, IOException, InterruptedException {
         String[] args = co.getArgArray();
         String cmd = co.getCommand();
@@ -649,6 +683,7 @@ public class ZooKeeperMain {
         }
         
         // execute from commandMap
+        //常规命令的执行  需要发送到服务器端执行的命令
         CliCommand cliCmd = commandMapCli.get(cmd);
         if(cliCmd != null) {
             cliCmd.setZk(zk);
